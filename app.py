@@ -3,20 +3,40 @@ import pandas as pd
 from datetime import datetime 
 import plotly.express as px
 
-# Busca as credenciais do secrets
+# Acesso aos secrets
 usuario_correto = st.secrets["login"]["usuario"]
 senha_correta = st.secrets["login"]["senha"]
 
-# Interface de login
-usuario = st.text_input("Usuário")
-senha = st.text_input("Senha", type="password")
+# Inicializa o estado de autenticação, se ainda não estiver setado
+if "autenticado" not in st.session_state:
+    st.session_state.autenticado = False
 
-if st.button("Entrar"):
-    if usuario == usuario_correto and senha == senha_correta:
-        st.success("Login bem-sucedido ✅")
-        # Aqui entra o resto do seu dashboard
-    else:
-        st.error("Usuário ou senha incorretos ❌")
+# Se ainda não autenticado, mostra a tela de login
+if not st.session_state.autenticado:
+    st.title("🔐 Login")
+    usuario = st.text_input("Usuário")
+    senha = st.text_input("Senha", type="password")
+
+    if st.button("Entrar"):
+        if usuario == usuario_correto and senha == senha_correta:
+            st.session_state.autenticado = True
+            st.success("Login bem-sucedido! ✅")
+            st.experimental_rerun()  # força recarregamento da interface
+        else:
+            st.error("Credenciais inválidas ❌")
+
+else:
+    # DASHBOARD AQUI
+    st.title("📊 Dashboard de Atendimentos Médicos")
+
+    # Botão de logout
+    if st.button("Sair"):
+        st.session_state.autenticado = False
+        st.experimental_rerun()
+
+    # --- Aqui entra todo o seu código do dashboard ---
+    # Exemplo:
+    st.write("Bem-vindo ao painel!")
 
 st.title("Dashboard de Atendimentos Médicos")
 
@@ -97,4 +117,5 @@ fig = px.pie(
 )
 
 st.plotly_chart(fig)
+
 
